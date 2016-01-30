@@ -21,8 +21,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-//Nmae of the class , make sure to have main() function checked when creating this class
-public class Mywordcount {
+//Name of the class , make sure to have main() function checked when creating this class
+public class MyWordcount {
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
 		// Check to see if the user has given 2 inputs
@@ -36,7 +36,7 @@ public class Mywordcount {
 		//This is the driver
 			
 		//Configuration	is set so we can use them later, think of it like a lookup list (eg if our file changes to 
-		// /t (tab space) as seperator only place we need to chage it would be here)
+		// /t (tab space) as separator only place we need to change it would be here)
 		
 	        Configuration conf	=	new Configuration();
 		conf.set("delimiter", "[\\s\\,]+"); // we set that the delimiter is going to be an space. At this point we configurate as much options as we need
@@ -44,9 +44,9 @@ public class Mywordcount {
 		
 		// Set up Job Details
 		Job job	= Job.getInstance(conf, "my first hadoop code");
-		job.setJarByClass(Mywordcount.class);
-		job.setMapperClass(Mywordcount.wordcountMapper.class);
-		job.setReducerClass(Mywordcount.wordcountReducer.class);
+		job.setJarByClass(MyWordcount.class);
+		job.setMapperClass(MyWordcount.wordcountMapper.class);
+		job.setReducerClass(MyWordcount.wordcountReducer.class);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(IntWritable.class);
 		job.setOutputKeyClass(Text.class);
@@ -89,7 +89,7 @@ public class Mywordcount {
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException{
 			String[] data	=	value.toString().split(del,-1);// data contains all the words of each record
-			Text outputText = new Text();
+//			Text outputText = new Text();
 			IntWritable outputValue = new IntWritable();
 			outputValue.set(1);
 			for (int idx=0; idx< data.length; idx++)
@@ -115,12 +115,3 @@ public class Mywordcount {
 	}
 }
 
-
-//public class mywordcount {
-//
-//	public static void main(String[] args) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//}
