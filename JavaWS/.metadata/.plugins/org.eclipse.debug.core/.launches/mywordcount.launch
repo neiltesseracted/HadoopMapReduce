@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/WordCount/src/com/bbc/wc/mywordcount.java"/>
+<listEntry value="/myMapReduce/src/com/bbc/mr/MyWordcount.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.bbc.wc.mywordcount"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="WordCount"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.bbc.mr.MyWordcount"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="myMapReduce"/>
 </launchConfiguration>

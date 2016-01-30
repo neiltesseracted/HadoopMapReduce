@@ -113,7 +113,7 @@ public class MyStats {
 		
 		@Override
 		protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
-			if (key.toString().equals("sum")){
+//			if (key.toString() == "sum") {
 				Long n=(long) 0, sum=(long) 0, min=Long.MAX_VALUE, max=Long.MIN_VALUE;
 				Double std=0.0, avg;
 				for (LongWritable value: values){
@@ -132,8 +132,8 @@ public class MyStats {
 				context.write(new Text("std"), new Text(std.toString()));
 				context.write(new Text("min"), new Text(min.toString()));
 				context.write(new Text("max"), new Text(max.toString()));
-//				context.write(new Text("_TEST_k"), new Text("_TEST_v"));
-			}
+				context.write(new Text("_TEST_k"), new Text("_TEST_v"));
+//			}
 
 		}
 		
