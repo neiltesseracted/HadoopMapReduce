@@ -1,0 +1,144 @@
+package com.bbc.mr;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.DoubleWritable;;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+//Name of the class , make sure to have main() function checked when creating this class
+public class MyMean {
+
+	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
+		// Check to see if the user has given 2 inputs
+		if (args.length!=2){
+			System.out.println("The number of arguments should be 2: <input folder><output folder>");
+		}
+		
+		//Install lib path http://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common  /2.3.0 may work. If doesn't use 2.1.0
+		//Install lib path http://mvnrepository.com/artifact/org.apache.hadoop/hadoop-mapreduce-client-core/2.3.0	
+		
+		//This is the driver
+			
+		//Configuration	is set so we can use them later, think of it like a lookup list (eg if our file changes to 
+		// /t (tab space) as separator only place we need to change it would be here)
+		
+	        Configuration conf	=	new Configuration();
+		conf.set("delimiter", "[\\s\\,]+"); // we set that the delimiter is going to be an space. At this point we configurate as much options as we need
+		
+		// Set up Job Details
+		Job job	= Job.getInstance(conf, "my first hadoop code");
+		job.setJarByClass(MyMean.class);
+		job.setMapperClass(MyMean.mymapper.class);
+		job.setReducerClass(MyMean.myreducer.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
+		// Number of reducers = number of output files written
+		job.setNumReduceTasks(1);
+		
+		FileInputFormat.setInputPaths(job,  new Path(args[0]));
+		FileOutputFormat.setOutputPath(job,  new Path(args[1]));
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		//If Output path exists we first delete it before writing the output
+		FileSystem fs 	= FileSystem.get( conf);
+		if (fs.exists(new Path(args[1])))
+			fs.delete(new Path(args[1]), true);
+	    		
+		job.waitForCompletion(true);
+		
+		//Quit if we have errors in job.
+		
+		if (!job.isComplete() || !job.isSuccessful()){
+			System.out.println("The job has not been completed properly");
+	        System.exit(1);
+		}
+	}
+
+	public static class  mymapper extends Mapper<LongWritable, Text, Text, LongWritable>{
+		
+		Configuration myConf;
+		String del;
+		
+		@Override
+		protected void setup (Context context){   //This method is executed once when we start a mapper. Used to read configuration or global variables. Can be used for either map or reducer in the same way.
+			myConf	= context.getConfiguration(); //Standard way to bring configuration
+			del	= myConf.get("delimiter");
+		}
+		
+		@Override
+		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException{
+			String[] data	=	value.toString().split(del,-1);// data contains all the words of each record
+//			Text outputText = new Text();
+			LongWritable outputValue = new LongWritable();
+			
+			// write each number as the value of a "sum" key
+			for (String d: data) {
+				outputValue.set(Integer.valueOf(d));
+				context.write(new Text("sum"), outputValue);
+			}
+			
+			// write other keys			
+			LongWritable initVal = new LongWritable();
+			initVal.set(0);
+			context.write(new Text("n"), initVal);
+			context.write(new Text("avg"), initVal);
+			context.write(new Text("std"), initVal);
+			context.write(new Text("min"), initVal);
+			context.write(new Text("max"), initVal);
+			
+		}
+		
+		@Override
+		protected void cleanup(Context context){} //method invoked when the mapper or reducer is going to finish. Here is not used.
+	}
+	
+	public static class myreducer extends Reducer<Text, LongWritable, Text, Text>{
+		
+		@Override
+		protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
+			if (key.toString() == "sum") {
+				Long n=(long) 0, sum=(long) 0, min=Long.MAX_VALUE, max=Long.MIN_VALUE;
+				Double std=0.0, avg;
+				for (LongWritable value: values){
+					n++;
+					sum+= value.get();
+					std+= Math.pow(value.get(), 2); // std will be sum of squares for now
+					if (value.get() < min) min=value.get();
+					if (value.get() > max) max=value.get();
+				}
+				avg = (double) sum / n;
+				std = Math.pow(std / n - Math.pow(avg, 2) , .5);	// std now is std;
+				
+				
+				
+			}
+			
+			
+			
+			long sum = 0;
+			for (IntWritable value: values){
+				sum++;
+			}
+			context.write(key, new LongWritable(sum));
+		}
+		
+	}
+}

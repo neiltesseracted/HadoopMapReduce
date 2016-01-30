@@ -3,3 +3,6 @@
 1454109811435	Rename type 'mywordcount'
 1454109835580	Rename type 'myMapReduce'
 1454117616568	Rename type 'Mywordcount'
+1454117998984	Rename type 'wordcountMapper'
+1454118011116	Rename type 'wordcountReducer'
+1454129790632	Rename type 'MyMean'
